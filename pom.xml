@@ -37,6 +37,7 @@
 	<modules>
 		<module>common/common</module>
 		<module>product-catalog/product-catalog</module>
+		<module>order-service/order-service</module>
 	</modules>
 
 	<build>
@@ -46,13 +47,9 @@
 		  <groupId>org.apache.maven.plugins</groupId>
 		  <artifactId>maven-compiler-plugin</artifactId>
 		  <configuration>
-			<annotationProcessorPaths>
-			  <path>
-				<groupId>org.projectlombok</groupId>
-				<artifactId>lombok</artifactId>
-				<version>${lombok.version}</version>
-			  </path>
-			</annotationProcessorPaths>
+			  <source>${java.version}</source>
+			  <target>${java.version}</target>
+			  <parameters>true</parameters>
 		  </configuration>
 		</plugin>
 
@@ -61,12 +58,9 @@
 		  <groupId>org.springframework.boot</groupId>
 		  <artifactId>spring-boot-maven-plugin</artifactId>
 		  <configuration>
-			<excludes>
-			  <exclude>
-				<groupId>org.projectlombok</groupId>
-				<artifactId>lombok</artifactId>
-			  </exclude>
-			</excludes>
+			  <source>${java.version}</source>
+			  <target>${java.version}</target>
+			  <parameters>true</parameters>
 		  </configuration>
 		</plugin>
 	  </plugins>

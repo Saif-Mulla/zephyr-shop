@@ -7,9 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+
 public class OrderCreatedEvent {
 	UUID orderId;
 	Map<String, Integer> items; // sku + qty
@@ -20,6 +18,11 @@ public class OrderCreatedEvent {
 	
 	public UUID getOrderId() {
 		return orderId;
+	}
+	
+	public OrderCreatedEvent(UUID orderId, Map<String, Integer> items) {
+		this.items = items;
+		this.orderId = orderId;
 	}
 	
 }

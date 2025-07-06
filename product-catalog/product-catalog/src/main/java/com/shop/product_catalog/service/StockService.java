@@ -11,18 +11,19 @@ import com.shop.product_catalog.model.Product;
 import com.shop.product_catalog.repository.ProductRepository;
 import com.zephyr.common.events.StockReservedEvent;
 
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Sinks;
 
 @Service
-@RequiredArgsConstructor
 public class StockService {
 
 	private final ProductRepository productRepo;
+	private final Sinks.Many<StockReservedEvent> stockSink;
 	
-	public StockService(ProductRepository productRepo) {
+	public StockService(ProductRepository productRepo, Sinks.Many<StockReservedEvent> stockSink) {
 		this.productRepo = productRepo;
+		this.stockSink = stockSink;
 	}
 	
 	public Mono<StockReservedEvent> reserveStock(UUID orderId, Map<String, Integer> items){
@@ -31,9 +32,17 @@ public class StockService {
 				.flatMap(item -> reserveOneStock(item.getKey(), item.getValue()));
 		
 		return products
-				.then(Mono.fromCallable( () -> new StockReservedEvent(orderId, true)))
-				.onErrorResume(error -> Mono.just(new StockReservedEvent(orderId, false, error.getMessage())));
-		
+				.then(Mono.fromCallable(
+						() -> {
+							StockReservedEvent success = new StockReservedEvent(orderId, true);
+							stockSink.tryEmitNext(success);
+							return success;
+						}))
+				.onErrorResume(error -> {
+					StockReservedEvent fail = new StockReservedEvent(orderId, false, error.getMessage());
+					stockSink.tryEmitNext(fail);
+					return Mono.just(fail);
+				});
 	}
 
 	private Mono<Product> reserveOneStock(String sku, int qty){
@@ -46,6 +55,10 @@ public class StockService {
 								return productRepo.save(p);
 							}
 						);
+	}
+
+	public Mono<Product> getProductbySKU(String sku) {
+		return productRepo.findBySku(sku);
 	}
 
 }

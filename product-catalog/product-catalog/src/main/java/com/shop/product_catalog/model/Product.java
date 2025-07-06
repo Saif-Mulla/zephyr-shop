@@ -10,9 +10,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Table("products")
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class Product {
 
 	@Id
